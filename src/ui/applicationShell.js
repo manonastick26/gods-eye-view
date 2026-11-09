@@ -313,6 +313,7 @@ export class StyleManager extends ShellFacade {
         flyToPOI: services.flyToPOI,
         GLOBE_VIEW: services.GLOBE_VIEW,
         flyToGlobeView: services.flyToGlobeView,
+        flyToLandmark: services.flyToLandmark,
         interruptCameraMotion: services.interruptCameraMotion,
         interruptGlobeRotation: services.interruptGlobeRotation,
         flightsLayer: services.flightsLayer,

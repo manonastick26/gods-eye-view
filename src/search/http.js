@@ -51,6 +51,7 @@ export function createHttpGeospatialProvider({
   fetchImpl = (...args) => fetch(...args),
   resolveApiKey,
   endpoints = {},
+  allowMetered = true,
 } = {}) {
   const urls = {
     // Same-origin like its siblings below: Google's Geocoding web service
@@ -92,12 +93,14 @@ export function createHttpGeospatialProvider({
     async reverseGeocode(latitude, longitude, options) {
       // The browser key gates the provider without travelling with the
       // request: the proxy supplies the key Google actually sees.
+      if (!allowMetered) return null;
       if (resolveApiKey && !resolveApiKey()) return null;
       return normalizeGoogleReverse(
         await json(urls.reverse, { lat: latitude, lon: longitude }, options),
       );
     },
     async textSearch(query, { latitude, longitude, radiusM = 6000 }, options) {
+      if (!allowMetered) return null;
       return places(
         await json(
           urls.textSearch,
@@ -107,6 +110,7 @@ export function createHttpGeospatialProvider({
       );
     },
     async nearby({ latitude, longitude, radiusM = 250 }, options) {
+      if (!allowMetered) return null;
       return places(
         await json(
           urls.nearby,

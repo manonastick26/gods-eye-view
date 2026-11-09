@@ -103,12 +103,16 @@ function metaText(state, enabled, activeCamera, catalogCount) {
       ? _calBadgeLabel(activeCamera.calBadge)
       : '';
     const projLabel = state?.showProjection !== false ? t('MONITOR') : t('OFF');
-    return keepCodesWithValues(
+    const headingValue =
+      roundHeadingDegrees(Number(activeCamera.headingDeg)) ?? 0;
+    const line = keepCodesWithValues(
       t(
         '{city} · HDG {heading} · FOV {fov} · RANGE {range}m · {projection}{calBadge} · {provider}{status}',
         {
           city: activeCamera.city,
-          heading: `${roundHeadingDegrees(Number(activeCamera.headingDeg)) ?? 0}°`,
+          heading: activeCamera.headingEstimated
+            ? t('{value}° (ESTIMATED)', { value: headingValue })
+            : `${headingValue}°`,
           fov: `${Math.round(activeCamera.fovDeg)}°`,
           range: Math.round(activeCamera.rangeM),
           projection: projLabel,
@@ -118,6 +122,18 @@ function metaText(state, enabled, activeCamera, catalogCount) {
         },
       ),
     );
+    // Raw priors and synthetic bearings are not surveyed poses. A known
+    // horizontal accuracy is the source's own figure, not a guess we add.
+    const notes = [];
+    if (activeCamera.headingEstimated || activeCamera.calBadge === 'raw-prior')
+      notes.push(t('PLACEMENT ESTIMATED'));
+    if (Number.isFinite(activeCamera.accuracyM) && activeCamera.accuracyM > 0)
+      notes.push(
+        t('accuracy ±{meters} m', {
+          meters: Math.round(activeCamera.accuracyM),
+        }),
+      );
+    return notes.length ? `${line} · ${notes.join(' · ')}` : line;
   }
   if (catalogCount > 0)
     return enabled

@@ -65,8 +65,8 @@ test('a TomTom-only host resolves every request to TomTom, keyed or not', () => 
   for (const value of [null, 'osm', 'hybrid', 'tomtom'])
     for (const hasKey of [true, false])
       assert.equal(resolveRoadMode(value, hasKey, ['tomtom']), 'tomtom');
-  // Without Hybrid the default is the first offered mode.
-  assert.equal(resolveRoadMode(null, true, ['tomtom', 'osm']), 'tomtom');
+  // OpenStreetMap stays the unset default even when a TomTom key is present.
+  assert.equal(resolveRoadMode(null, true, ['tomtom', 'osm']), 'osm');
   assert.equal(resolveRoadMode(null, false, ['tomtom', 'osm']), 'osm');
 });
 

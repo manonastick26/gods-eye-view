@@ -5,7 +5,7 @@ import { vPanelState } from '../rail/panelState.js';
 import UiButton from '../kit/UiButton.vue';
 import { vClassToggle } from '../rail/classToggle.js';
 import { useDisplayStore } from '../stores/display.js';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useLocationStore } from '../stores/location.js';
 import { usePanelChromeStore } from '../stores/panelChrome.js';
 import { usePointerReticleStore } from '../stores/pointerReticle.js';
@@ -61,6 +61,26 @@ const { reticles } = storeToRefs(usePointerReticleStore());
 function selectMapSource(chip) {
   if (!chip.available) return;
   void mapSourceControls.value?.select(chip.id).catch(() => {});
+}
+
+const METERED_STORAGE_KEY = 'gev-metered-providers';
+function readMetered() {
+  try {
+    return globalThis.localStorage?.getItem(METERED_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+const metered = ref(readMetered());
+function toggleMetered() {
+  const next = !metered.value;
+  try {
+    globalThis.localStorage?.setItem(METERED_STORAGE_KEY, next ? '1' : '0');
+  } catch {
+    return;
+  }
+  metered.value = next;
+  globalThis.location?.reload?.();
 }
 </script>
 
@@ -118,6 +138,8 @@ function selectMapSource(chip) {
           <span id="map-stack-status" class="pp-stack-status" v-class-toggle="{ warn: !!mapSource?.status.warn }" aria-live="polite">{{ mapSource ? mapSource.status.text : '3D' }}</span>
         </div>
         <div id="map-stack-chips" class="map-stack-chip-row" role="group" :aria-label="t('Map source')"><UiButton v-for="chip in mapSource?.chips" :key="chip.id" class="map-stack-chip" :pressed="Boolean(chip.active)" pressed-class="active" v-class-toggle="{ unavailable: !chip.available }" :data-stack-id="chip.id" :title="chip.title" :aria-disabled="String(!chip.available)" :aria-label="chip.ariaLabel" @click="selectMapSource(chip)"><span class="map-stack-chip-label">{{ chip.label }}</span><span v-if="chip.requirement" class="map-stack-chip-req">{{ chip.requirement }}</span></UiButton></div>
+        <button type="button" class="paid-maps-toggle" :aria-pressed="metered ? 'true' : 'false'" @click="toggleMetered">{{ metered ? t('Paid maps on') : t('Paid maps off') }}</button>
+        <p class="paid-maps-note">{{ t('Street Traffic stays simulated unless you choose TomTom or Hybrid. Google 3D and Google place search stay off until you turn paid maps on, which reloads the page.') }}</p>
       </section>
       </div>
       <div id="style-mini-status" class="panel-mini-status" aria-live="polite">
@@ -157,6 +179,16 @@ function selectMapSource(chip) {
           </div>
         </div>
         <p id="location-search-error" class="location-search-error" role="alert">{{ loc?.searchError }}</p>
+        <div class="favorite-locations" role="group" :aria-label="t('Saved places')">
+          <button type="button" class="favorite-save" @click="locationControls?.saveFavorite()">{{ t('Save this view') }}</button>
+          <p v-if="!loc?.favorites?.length" class="favorite-empty">{{ t('No saved places yet') }}</p>
+          <div v-else class="favorite-list">
+            <span v-for="place in loc.favorites" :key="place.id" class="favorite-item">
+              <button type="button" class="favorite-go" @click="locationControls?.chooseFavorite(place.id)">{{ place.name }}</button>
+              <button type="button" class="favorite-remove" :aria-label="t('Remove {name}', { name: place.name })" @click="locationControls?.removeFavorite(place.id)">{{ t('Remove {name}', { name: place.name }) }}</button>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

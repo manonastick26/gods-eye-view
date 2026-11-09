@@ -95,6 +95,8 @@ export function createControls({ state: layerState, services, parts, source }) {
         if (explicit) layerState._roadModeUrlOverride = null;
         if (mode !== layerState._roadMode) {
           layerState._roadMode = mode;
+          // A later TomTom or Hybrid choice may spend the key; OSM must not.
+          parts.flow.syncLiveMode();
           // Redraw from scratch: a different source means different roads.
           parts.ingestion.cancelActiveFetch();
           clearTimeout(layerState._retryTimer);
@@ -221,7 +223,9 @@ export function createControls({ state: layerState, services, parts, source }) {
           : t(
               'TomTom roads only, each with its live flow (needs a TomTom key)',
             ),
-        osm: t('OpenStreetMap roads, with TomTom flow matched when available'),
+        osm: t(
+          'OpenStreetMap roads with simulated traffic. Choose TomTom or Hybrid for live flow.',
+        ),
         hybrid: live
           ? t('TomTom roads first; OpenStreetMap fills the rest, simulated')
           : t(
@@ -396,6 +400,7 @@ export function createControls({ state: layerState, services, parts, source }) {
         coveragePct: flowCoveragePct,
         statusUnavailable: layerState._flowStatusUnavailable,
         roadSource: layerState._roadSource,
+        keyPresent: Boolean(layerState._tomtomKeyPresent),
       });
       return {
         count: layerState._count,

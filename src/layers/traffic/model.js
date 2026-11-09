@@ -244,6 +244,7 @@ export function createModel({ state: layerState, services, parts, source }) {
     coveragePct = 0,
     statusUnavailable = false,
     roadSource = 'OpenStreetMap',
+    keyPresent = false,
   } = {}) {
     // `mode` is the CONFIGURED source (live key present vs keyless), not this
     // instant's health — health rides on `error`. The qa-traffic harness pins
@@ -336,7 +337,9 @@ export function createModel({ state: layerState, services, parts, source }) {
       error: null,
       loadingLabel: statusUnavailable
         ? t('SIMULATED — traffic service unreachable')
-        : t('SIMULATED — add TomTom key for live'),
+        : keyPresent
+          ? t('SIMULATED — choose TomTom or Hybrid for live flow')
+          : t('SIMULATED — add TomTom key for live'),
     };
   }
 

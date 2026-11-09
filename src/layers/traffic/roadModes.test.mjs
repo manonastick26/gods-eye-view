@@ -40,9 +40,9 @@ const flow = {
 const box = { west: -97.75, east: -97.74, south: 30.26, north: 30.27 };
 
 test('road modes have key-aware defaults, explicit overrides and keyless fallback', () => {
-  assert.equal(resolveRoadMode(null, true), 'hybrid');
+  assert.equal(resolveRoadMode(null, true), 'osm');
   assert.equal(resolveRoadMode(null, false), 'osm');
-  assert.equal(resolveRoadMode('invalid', true), 'hybrid');
+  assert.equal(resolveRoadMode('invalid', true), 'osm');
   for (const mode of ['tomtom', 'osm', 'hybrid']) {
     assert.equal(resolveRoadMode(mode, true), mode);
     assert.equal(resolveRoadMode(mode, false), 'osm');
@@ -589,7 +589,7 @@ test('a first keyed load whose flow fails never caches simulated fill as OSM roa
     _tileCache: new Map(),
     _enabled: true,
     _liveMode: false,
-    _roadMode: null,
+    _roadMode: 'hybrid',
     _parseRoads: (data) => data.roads,
   };
   const requests = [];
@@ -655,7 +655,9 @@ test('a flow snapshot that misses the pass deadline cannot hold roads', async ()
   const keyless = await (await request(null, false)).json();
   assert.equal(keyless.roadMode, 'osm');
   assert.equal(keyless.roads.length, 2);
-  const hybrid = await (await request(null, true)).json();
+  const keyedDefault = await (await request(null, true)).json();
+  assert.equal(keyedDefault.roadMode, 'osm');
+  const hybrid = await (await request('hybrid', true)).json();
   assert.equal(hybrid.roadMode, 'hybrid');
   assert.equal(hybrid.roadSource, 'OpenStreetMap');
   assert.ok(hybrid.roads.every((road) => road.simulatedOnly));

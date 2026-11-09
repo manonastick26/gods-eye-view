@@ -1,6 +1,5 @@
 {
   "NO PLACE LEFT BEHIND": "NINGÚN RINCÓN SIN VIGILAR",
-  "Initializing photorealistic world...": "Inicializando el mundo fotorrealista...",
   "Configuring viewer...": "Configurando el visor...",
   "Google 3D Tiles unavailable ({detail}). Loading the keyless globe...": "Google 3D Tiles no disponibles ({detail}). Cargando el globo sin clave...",
   "Flying to Austin, TX...": "Volando a Austin, TX...",
@@ -2786,7 +2785,6 @@
   "Moving dots": "Puntos en movimiento",
   "TomTom roads only, each with its live flow": "Solo vías de TomTom, cada una con su flujo en vivo",
   "TomTom roads only, each with its live flow (needs a TomTom key)": "Solo vías de TomTom, cada una con su flujo en vivo (necesita una clave de TomTom)",
-  "OpenStreetMap roads, with TomTom flow matched when available": "Vías de OpenStreetMap, con el flujo de TomTom emparejado cuando está disponible",
   "TomTom roads first; OpenStreetMap fills the rest, simulated": "Primero las vías de TomTom; OpenStreetMap completa el resto con flujo simulado",
   "TomTom roads first; OpenStreetMap fills the rest, simulated (needs a TomTom key)": "Primero las vías de TomTom; OpenStreetMap completa el resto con flujo simulado (necesita una clave de TomTom)",
   "Austin": "Austin",
@@ -3381,5 +3379,17 @@
   "1 wk/s": "1 sem/s",
   "Play speed": "Velocidad de reproducción",
   "Scroll or pinch to zoom, drag to move along · double-click to see it all": "Desplaza o pellizca para ampliar, arrastra para moverte · doble clic para verlo todo",
-  "1 min/s": "1 min/s"
+  "1 min/s": "1 min/s",
+  "OpenStreetMap roads with simulated traffic. Choose TomTom or Hybrid for live flow.": "Vías de OpenStreetMap con tráfico simulado. Elige TomTom o Híbrido para el flujo en vivo.",
+  "SIMULATED — choose TomTom or Hybrid for live flow": "SIMULADO — elige TomTom o Híbrido para el flujo en vivo",
+  "{value}° (ESTIMATED)": "{value}° (ESTIMADO)",
+  "PLACEMENT ESTIMATED": "UBICACIÓN ESTIMADA",
+  "accuracy ±{meters} m": "precisión ±{meters} m",
+  "Paid maps on": "Mapas de pago activados",
+  "Paid maps off": "Mapas de pago desactivados",
+  "Street Traffic stays simulated unless you choose TomTom or Hybrid. Google 3D and Google place search stay off until you turn paid maps on, which reloads the page.": "El tráfico urbano sigue simulado hasta que eliges TomTom o Híbrido. Google 3D y la búsqueda de lugares de Google siguen desactivadas hasta que activas los mapas de pago, lo que recarga la página.",
+  "Saved places": "Lugares guardados",
+  "Save this view": "Guardar esta vista",
+  "No saved places yet": "Aún no hay lugares guardados",
+  "Custom edition. Original by Bilawal Sidhu, MIT license.": "Edición personalizada. Original de Bilawal Sidhu, licencia MIT."
 }

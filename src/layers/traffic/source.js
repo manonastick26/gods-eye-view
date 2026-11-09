@@ -284,6 +284,9 @@ export function createTrafficSource({
     )
       throw new TypeError('A bounded road viewport is required');
     roadMode = normalizeRoadMode(roadMode, modes);
+    // Unset means simulated OpenStreetMap whenever the host offers it. Do not
+    // wait on the TomTom snapshot first: that wait is what spends the quota.
+    if (!roadMode && roadModesSimulate(modes)) roadMode = 'osm';
     if (!roadModesSimulate(modes) && !flowSnapshot)
       throw new TypeError(
         'Road selection requires a flow availability snapshot',

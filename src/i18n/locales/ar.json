@@ -1,6 +1,5 @@
 {
   "NO PLACE LEFT BEHIND": "لا مكان يُترك خلفنا",
-  "Initializing photorealistic world...": "جارٍ تهيئة العالم الواقعي…",
   "Configuring viewer...": "جارٍ إعداد العارض…",
   "Google 3D Tiles unavailable ({detail}). Loading the keyless globe...": "بلاطات Google 3D Tiles غير متاحة ({detail}). جارٍ تحميل الكرة الأرضية بلا مفتاح…",
   "Flying to Austin, TX...": "جارٍ الانتقال إلى أوستن، تكساس…",
@@ -1824,7 +1823,6 @@
   "Reduced detail coverage": "تغطية بتفاصيل أقل",
   "TomTom roads only, each with its live flow": "طرق TomTom فقط، لكلٍّ منها تدفقه المباشر",
   "TomTom roads only, each with its live flow (needs a TomTom key)": "طرق TomTom فقط، لكلٍّ منها تدفقه المباشر (يحتاج إلى مفتاح TomTom)",
-  "OpenStreetMap roads, with TomTom flow matched when available": "طرق OpenStreetMap، مع مطابقة تدفق TomTom عند توفره",
   "TomTom roads first; OpenStreetMap fills the rest, simulated": "طرق TomTom أولًا؛ ويكمل OpenStreetMap الباقي بتدفق محاكى",
   "TomTom roads first; OpenStreetMap fills the rest, simulated (needs a TomTom key)": "طرق TomTom أولًا؛ ويكمل OpenStreetMap الباقي بتدفق محاكى (يحتاج إلى مفتاح TomTom)",
   "Hybrid": "هجين",
@@ -3609,5 +3607,17 @@
   "1 wk/s": "أسبوع/ث",
   "Play speed": "سرعة التشغيل",
   "Scroll or pinch to zoom, drag to move along · double-click to see it all": "مرّر أو اقرص للتكبير، واسحب للتنقل · انقر نقرًا مزدوجًا لرؤية الكل",
-  "1 min/s": "دقيقة/ث"
+  "1 min/s": "دقيقة/ث",
+  "OpenStreetMap roads with simulated traffic. Choose TomTom or Hybrid for live flow.": "طرق OpenStreetMap بحركة مرور محاكاة. اختر TomTom أو الهجين للتدفق المباشر.",
+  "SIMULATED — choose TomTom or Hybrid for live flow": "محاكاة — اختر TomTom أو الهجين للتدفق المباشر",
+  "{value}° (ESTIMATED)": "{value}° (تقديري)",
+  "PLACEMENT ESTIMATED": "الموضع تقديري",
+  "accuracy ±{meters} m": "الدقة ±{meters} م",
+  "Paid maps on": "الخرائط المدفوعة تعمل",
+  "Paid maps off": "الخرائط المدفوعة متوقفة",
+  "Street Traffic stays simulated unless you choose TomTom or Hybrid. Google 3D and Google place search stay off until you turn paid maps on, which reloads the page.": "تبقى حركة الشوارع محاكاة ما لم تختر TomTom أو الهجين. تبقى خرائط Google ثلاثية الأبعاد وبحث الأماكن متوقفين حتى تشغّل الخرائط المدفوعة، وهذا يعيد تحميل الصفحة.",
+  "Saved places": "الأماكن المحفوظة",
+  "Save this view": "حفظ هذا العرض",
+  "No saved places yet": "لا أماكن محفوظة بعد",
+  "Custom edition. Original by Bilawal Sidhu, MIT license.": "إصدار مخصص. الأصل من Bilawal Sidhu، برخصة MIT."
 }

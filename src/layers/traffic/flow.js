@@ -13,6 +13,7 @@ import {
 } from './policy.js';
 import { msg } from '../../i18n/index.js';
 import { nextTask } from '../../sources/vectorTiles.js';
+import { normalizeRoadMode } from './roadModes.js';
 
 export function createFlow({ state: layerState, services, parts, source }) {
   const { registerDynamicCredit, TOMTOM_CREDIT } = services.credits;
@@ -64,6 +65,26 @@ export function createFlow({ state: layerState, services, parts, source }) {
    * @returns {Promise<void>} Resolves when `_liveMode` is settled.
    */
 
+  /**
+   * Live tiles are used only after an explicit TomTom or Hybrid choice.
+   * A configured key with the default (or OpenStreetMap) selection stays
+   * simulated and does not register the TomTom credit.
+   */
+  function syncLiveMode() {
+    const chosen = normalizeRoadMode(
+      layerState._roadMode,
+      layerState._roadModes,
+    );
+    const explicit = chosen === 'tomtom' || chosen === 'hybrid';
+    const live = Boolean(layerState._tomtomKeyPresent) && explicit;
+    const wasLive = layerState._liveMode;
+    if (live && layerState._viewer)
+      registerDynamicCredit(layerState._viewer, TOMTOM_CREDIT);
+    layerState._liveMode = live;
+    if (live && !wasLive)
+      console.log('[Data:Traffic] TomTom key present — live flow mode');
+  }
+
   function ensureFlowStatus(signal) {
     if (layerState._flowStatusSignal?.aborted)
       layerState._flowStatusPromise = null;
@@ -74,13 +95,10 @@ export function createFlow({ state: layerState, services, parts, source }) {
         .then((status) => {
           if (layerState._flowStatusSignal === signal)
             layerState._flowStatusSignal = null;
-          layerState._liveMode = Boolean(status?.hasKey);
+          layerState._tomtomKeyPresent = Boolean(status?.hasKey);
           layerState._flowStatusUnavailable = false;
           layerState._flowStatusKnown = true;
-          if (layerState._liveMode) {
-            console.log('[Data:Traffic] TomTom key present — live flow mode');
-            registerDynamicCredit(layerState._viewer, TOMTOM_CREDIT);
-          }
+          syncLiveMode();
         })
         .catch((e) => {
           if (e?.name === 'AbortError') throw e;
@@ -88,6 +106,7 @@ export function createFlow({ state: layerState, services, parts, source }) {
             layerState._flowStatusSignal = null;
           // Simulating because we could not ask, which is NOT the same as
           // "server says no key" — getStats() distinguishes the two.
+          layerState._tomtomKeyPresent = false;
           layerState._liveMode = false;
           layerState._flowStatusUnavailable = true;
           layerState._flowStatusKnown = true;
@@ -579,6 +598,7 @@ export function createFlow({ state: layerState, services, parts, source }) {
   return {
     deriveTrafficFlowError,
     ensureFlowStatus,
+    syncLiveMode,
     applyFlowToRoads,
     warmFlow,
     applyFlowThenRender,
