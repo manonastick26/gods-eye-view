@@ -6,8 +6,33 @@ import {
   DEFAULT_ALLOWED_HOSTS,
   hostCheckPlugin,
   isAllowedHost,
+  isLoopbackListenAddress,
+  loopbackConfigHost,
   resolveAllowedHosts,
 } from '../../build/allowedHosts.js';
+
+test('PC launches stay on loopback; only the container flag keeps a wildcard bind', () => {
+  assert.equal(loopbackConfigHost(undefined, {}), '127.0.0.1');
+  assert.equal(loopbackConfigHost('localhost', {}), 'localhost');
+  assert.equal(loopbackConfigHost('0.0.0.0', {}), '127.0.0.1');
+  assert.equal(loopbackConfigHost('::', {}), '127.0.0.1');
+  assert.equal(
+    loopbackConfigHost('0.0.0.0', { GEV_CONTAINER_BIND: '1' }),
+    '0.0.0.0',
+  );
+  assert.equal(
+    isLoopbackListenAddress({ address: '127.0.0.1', port: 4173 }),
+    true,
+  );
+  assert.equal(isLoopbackListenAddress({ address: '::1', port: 4173 }), true);
+  assert.equal(isLoopbackListenAddress({ address: '::ffff:127.0.0.1' }), true);
+  assert.equal(
+    isLoopbackListenAddress({ address: '0.0.0.0', port: 4173 }),
+    false,
+  );
+  assert.equal(isLoopbackListenAddress({ address: '::', port: 4173 }), false);
+  assert.equal(isLoopbackListenAddress({ address: '192.168.1.20' }), false);
+});
 
 test('uses the restricted local host allowlist by default', () => {
   assert.deepEqual(resolveAllowedHosts(), DEFAULT_ALLOWED_HOSTS);

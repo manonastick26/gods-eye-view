@@ -11,6 +11,43 @@ import { isIP } from 'node:net';
 
 export const DEFAULT_ALLOWED_HOSTS = Object.freeze(['localhost', '127.0.0.1']);
 
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+
+/**
+ * Host value safe to put in Vite's config for this edition.
+ * `GEV_CONTAINER_BIND=1` is only the Docker launcher: compose publishes
+ * `127.0.0.1:4173:4173`, so the process inside the container must accept the
+ * docker bridge. Every other launch is forced onto loopback.
+ * @param {string|undefined|null} requested
+ * @param {NodeJS.ProcessEnv} [env]
+ * @returns {string}
+ */
+export function loopbackConfigHost(requested, env = process.env) {
+  if (env.GEV_CONTAINER_BIND === '1')
+    return String(requested || '0.0.0.0').trim() || '0.0.0.0';
+  const host = String(requested || '')
+    .trim()
+    .toLowerCase();
+  if (LOOPBACK_HOSTS.has(host)) return host;
+  return '127.0.0.1';
+}
+
+/**
+ * Whether a bound server address is loopback. Node reports the address it
+ * actually opened, which is how a `--host 0.0.0.0` override is caught.
+ * @param {string|{address?: string}|null|undefined} address
+ * @returns {boolean}
+ */
+export function isLoopbackListenAddress(address) {
+  const raw =
+    address && typeof address === 'object' ? address.address : address;
+  let host = String(raw || '')
+    .trim()
+    .toLowerCase();
+  if (host.startsWith('::ffff:')) host = host.slice('::ffff:'.length);
+  return host === '127.0.0.1' || host === '::1' || host === 'localhost';
+}
+
 /**
  * Resolve Vite's allowedHosts setting from an optional comma-separated list.
  * Empty entries and suffix/wildcard entries are ignored; repeated names keep
@@ -67,6 +104,38 @@ export function isAllowedHost(hostHeader, allowedHosts, additional = []) {
  * Host, including a DNS-rebinding name. It runs first (`enforce: 'pre'`) and
  * uses the same allowed hosts as Vite, on the dev and preview servers.
  */
+/**
+ * Close the server if it is not bound to loopback. Vite's CLI `--host` flag
+ * overrides `server.host`, so the config value alone cannot keep a PC launch
+ * off the LAN. The Docker launcher sets `GEV_CONTAINER_BIND=1` first.
+ */
+export function loopbackBindPlugin() {
+  const arm = (server) => {
+    const httpServer = server.httpServer;
+    if (!httpServer) return;
+    httpServer.on('listening', () => {
+      if (process.env.GEV_CONTAINER_BIND === '1') return;
+      const address = httpServer.address();
+      if (isLoopbackListenAddress(address)) return;
+      const where =
+        address && typeof address === 'object'
+          ? `${address.address}:${address.port}`
+          : String(address);
+      console.error(
+        `[security] Refusing ${where}. This edition listens only on 127.0.0.1 and ::1. Do not pass --host or set HOST=0.0.0.0.`,
+      );
+      httpServer.close(() => {
+        process.exit(1);
+      });
+    });
+  };
+  return {
+    name: 'gev-loopback-only',
+    configureServer: arm,
+    configurePreviewServer: arm,
+  };
+}
+
 export function hostCheckPlugin() {
   const middleware = (config, preview) => {
     const allowed = preview

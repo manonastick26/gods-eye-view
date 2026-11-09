@@ -2,7 +2,12 @@ import { fileURLToPath } from 'node:url';
 import cesium from 'vite-plugin-cesium';
 import vue from '@vitejs/plugin-vue';
 import { VUE_PLUGIN_OPTIONS } from './vueOptions.js';
-import { DEFAULT_ALLOWED_HOSTS, hostCheckPlugin } from './allowedHosts.js';
+import {
+  DEFAULT_ALLOWED_HOSTS,
+  hostCheckPlugin,
+  loopbackBindPlugin,
+  loopbackConfigHost,
+} from './allowedHosts.js';
 import { embedFramingPlugin } from './embed-framing.js';
 import { panelBuildPlugin } from './panel.js';
 
@@ -177,12 +182,14 @@ export function createBrowserViteConfig({
   command,
 } = {}) {
   const photonSetting = photonEndpointSetting(photonUrl);
+  const listenHost = loopbackConfigHost(host);
   return {
     plugins: [
       // First, so every API response, including a Host refusal, carries them.
       apiResponseHeadersPlugin(),
       // Next, so no provider route answers a Host the server does not allow.
       hostCheckPlugin(),
+      loopbackBindPlugin(),
       cesium(),
       // Application views are Vue single-file components.
       vue(VUE_PLUGIN_OPTIONS),
@@ -208,7 +215,7 @@ export function createBrowserViteConfig({
       ],
     },
     server: {
-      host: host || 'localhost',
+      host: listenHost,
       port: parseInt(port, 10) || 4173,
       // A wildcard bind only chooses interfaces; it never disables Vite's
       // Host-header check. LAN hostnames are added explicitly (see
@@ -237,7 +244,7 @@ export function createBrowserViteConfig({
     },
     // The preview server serves the same documents, so it carries the same
     // framing + CSP hardening (one constant, no drift).
-    preview: { headers: BROWSER_HEADERS },
+    preview: { host: listenHost, headers: BROWSER_HEADERS },
     define: {
       // vue-i18n holds the locale and catalogs; Core formats the messages
       // (src/ui/i18n.js), so the build drops vue-i18n's message compiler.

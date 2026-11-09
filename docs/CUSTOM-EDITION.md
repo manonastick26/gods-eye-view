@@ -19,14 +19,14 @@ The maintainer's PC operating system was not verified here. These steps are for 
 
 1. Install [Node.js 24.14.0 or later (not 25)](https://nodejs.org/) or Node.js 26.x. The project `engines` field rejects Node 25. The copy used to build this edition's checks may differ; match this range on the PC.
 2. Install Git if you are cloning. A source zip can be unpacked instead.
-3. In PowerShell, from the unpacked folder:
+3. In PowerShell, from the unpacked folder. Do not add `--host`, `HOST=0.0.0.0`, a firewall exception, or a port forward. `npm run dev` listens on 127.0.0.1 only, and the server exits if a launch tries to bind every interface.
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-4. Open `http://localhost:4173` in Chrome or Edge with hardware acceleration on. Leave API keys empty.
+4. Open `http://127.0.0.1:4173` in Chrome or Edge with hardware acceleration on. Leave API keys empty. That address is this PC only.
 
 `npm run doctor` checks the local setup. `npm test` runs the project's unit tests. There is no separate TypeScript check; the app is JavaScript.
 
@@ -37,6 +37,8 @@ npm ci
 npm run build
 npm run preview
 ```
+
+`npm run preview` also listens on 127.0.0.1 only. Open `http://127.0.0.1:4173`.
 
 Preview serves the `dist` folder. The dev command is the one that serves source with live reload.
 
