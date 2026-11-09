@@ -491,6 +491,37 @@ test('the scene summary types in, then holds the whole text', async (t) => {
   assert.equal(byId('cctv-summary').textContent, text);
 });
 
+test('estimated camera placement is named, and a curated pose is not', () => {
+  const estimated = presentCctvPanel(
+    {
+      enabled: true,
+      showProjection: false,
+      activeCamera: {
+        ...camera,
+        headingEstimated: true,
+        calBadge: 'raw-prior',
+        accuracyM: 40,
+      },
+    },
+    true,
+  );
+  assert.match(estimated.meta, /HDG 92° \(ESTIMATED\)/);
+  assert.match(estimated.meta, /PLACEMENT ESTIMATED/);
+  assert.match(estimated.meta, /accuracy ±40 m/);
+  const curated = presentCctvPanel(
+    {
+      enabled: true,
+      showProjection: false,
+      activeCamera: camera,
+    },
+    true,
+  );
+  assert.equal(
+    curated.meta,
+    'Austin · HDG 92° · FOV 60° · RANGE 120m · OFF · CURATED · Configured Source',
+  );
+});
+
 test('the panel meta line reads a bearing that rounds to north as HDG 0°', () => {
   const meta = (headingDeg) => {
     const camera = {

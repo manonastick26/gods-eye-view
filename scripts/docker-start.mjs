@@ -10,7 +10,13 @@
  * routing table and declares exactly that one address trusted, then starts
  * Vite the way scripts/pinokio-start.mjs does.
  */
-import { accessSync, constants, readFileSync, realpathSync, statSync } from 'node:fs';
+import {
+  accessSync,
+  constants,
+  readFileSync,
+  realpathSync,
+  statSync,
+} from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isDirectInvocation } from './pinokio-install.mjs';
@@ -30,7 +36,9 @@ const ROUTE_TABLE = '/proc/net/route';
  * @returns {string|null} Dotted-quad gateway, or null.
  */
 export function defaultGatewayFromRouteTable(text) {
-  const lines = String(text || '').split(/\r?\n/).slice(1);
+  const lines = String(text || '')
+    .split(/\r?\n/)
+    .slice(1);
   for (const line of lines) {
     const fields = line.trim().split(/\s+/);
     if (fields.length < 4) continue;
@@ -55,7 +63,10 @@ export function defaultGatewayFromRouteTable(text) {
  * @param {{env?: NodeJS.ProcessEnv, routeTable?: string}} input
  * @returns {string} Value for GEV_KEY_SETUP_TRUSTED_PEERS ('' trusts nothing).
  */
-export function resolveTrustedPeers({ env = process.env, routeTable = '' } = {}) {
+export function resolveTrustedPeers({
+  env = process.env,
+  routeTable = '',
+} = {}) {
   const explicit = String(env.GEV_KEY_SETUP_TRUSTED_PEERS ?? '').trim();
   if (explicit.toLowerCase() === 'none') return '';
   if (explicit) return explicit;
@@ -121,11 +132,18 @@ async function start() {
         : `[Docker] Provider Settings trusts the container gateway (${trustedPeers}).`,
     );
   } else if (fromOperator) {
-    console.log('[Docker] Provider Settings trusts no additional peers (GEV_KEY_SETUP_TRUSTED_PEERS=none).');
+    console.log(
+      '[Docker] Provider Settings trusts no additional peers (GEV_KEY_SETUP_TRUSTED_PEERS=none).',
+    );
   } else {
-    console.log('[Docker] No default gateway; Provider Settings stays loopback-only.');
+    console.log(
+      '[Docker] No default gateway; Provider Settings stays loopback-only.',
+    );
   }
 
+  // Compose publishes 127.0.0.1 only. This flag is what allows the process
+  // inside the container to accept that published port. A PC launch must not set it.
+  process.env.GEV_CONTAINER_BIND = '1';
   const port = Number.parseInt(process.env.PORT, 10) || 4173;
   const { createServer } = await loadViteFromCanonicalRoot(ROOT);
   const server = await createServer({

@@ -32,9 +32,11 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
   assert.equal(config.plugins[0].enforce, 'pre');
   assert.equal(config.plugins[1].name, 'host-check');
   assert.equal(config.plugins[1].enforce, 'pre');
-  assert.equal(config.plugins[3].name, 'vite:vue');
-  assert.equal(config.plugins[4], plugin);
+  assert.equal(config.plugins[2].name, 'gev-loopback-only');
+  assert.equal(config.plugins[4].name, 'vite:vue');
+  assert.equal(config.plugins[5], plugin);
   assert.equal(config.server.host, 'localhost');
+  assert.equal(config.preview.host, 'localhost');
   assert.equal(config.server.port, 4173);
   assert.deepEqual(config.server.allowedHosts, ['localhost', '127.0.0.1']);
   assert.ok(config.server.fs.deny.includes('**/ENVIRONMENT'));
@@ -102,12 +104,23 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
     ],
     '"MLY|1|abc"',
   );
-  // A wildcard bind keeps the Host-header check; LAN names are explicit.
-  for (const host of ['0.0.0.0', '::'])
-    assert.deepEqual(
-      createBrowserViteConfig({ host, port: '4800' }).server.allowedHosts,
-      ['localhost', '127.0.0.1'],
+  // A wildcard request is forced back to loopback and keeps the Host check.
+  for (const host of ['0.0.0.0', '::']) {
+    const widened = createBrowserViteConfig({ host, port: '4800' });
+    assert.equal(widened.server.host, '127.0.0.1');
+    assert.deepEqual(widened.server.allowedHosts, ['localhost', '127.0.0.1']);
+  }
+  const previousBind = process.env.GEV_CONTAINER_BIND;
+  process.env.GEV_CONTAINER_BIND = '1';
+  try {
+    assert.equal(
+      createBrowserViteConfig({ host: '0.0.0.0' }).server.host,
+      '0.0.0.0',
     );
+  } finally {
+    if (previousBind === undefined) delete process.env.GEV_CONTAINER_BIND;
+    else process.env.GEV_CONTAINER_BIND = previousBind;
+  }
   assert.deepEqual(
     createBrowserViteConfig({
       host: '0.0.0.0',
@@ -131,7 +144,7 @@ test('build helper does not discover environment values or construct local provi
       undefined,
     );
     assert.deepEqual(
-      config.plugins.slice(4).map((plugin) => plugin.name),
+      config.plugins.slice(5).map((plugin) => plugin.name),
       ['embed-framing', 'panel-build'],
     );
   } finally {
@@ -145,7 +158,7 @@ test('root config retains existing named exports and standalone provider order',
     assert.equal(compatibility[name], value, name);
   const config = standaloneConfig({ mode: 'test' }, { nominatimStorageDir });
   const standaloneProviders = config.plugins
-    .slice(4, -6)
+    .slice(5, -6)
     .map((plugin) => plugin.name);
   assert.equal(
     standaloneProviders.filter((name) => name === 'gemini-live-proxy').length,

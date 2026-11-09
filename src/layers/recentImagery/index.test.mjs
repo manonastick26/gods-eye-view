@@ -668,7 +668,7 @@ test('without a lease (another owner held it first) a switch to Google 3D takes 
 /**
  * The real `MapSourceController` on Google 3D over the default sources, with
  * Esri tiles that can fail after it activated (`failEsriTiles`) and an OSM
- * map that never activates, so a tile fallback recovers to Google 3D.
+ * map that never activates. A tile fallback does not recover to Google 3D.
  * Every `setStack` (the layer's, the operator's, the fallback's) is
  * recorded in `calls`.
  */
@@ -733,7 +733,7 @@ function failingMapController() {
 }
 
 for (const path of ['subscription', 'stats poll']) {
-  test(`an automatic fallback to Google 3D drops the swipe instead of re-leasing Esri; a manual switch re-leases once (${path})`, async () => {
+  test(`an Esri tile failure does not fall back to Google 3D; a manual switch re-leases Esri once (${path})`, async () => {
     const { controller, calls, failEsriTiles } = failingMapController();
     // Without `subscribe` the layer watches the map from the stats poll.
     const attached =
@@ -765,25 +765,17 @@ for (const path of ['subscription', 'stats poll']) {
     assert.equal(f.snap().comparison.active, true);
     assert.deepEqual(calls, ['esri-imagery']);
 
-    // Esri tiles fail: the controller falls back to OSM, OSM cannot
-    // activate, and it recovers to Google 3D. Nobody chose Google 3D, so
-    // the layer lets the lease go and shows both days without a swipe.
+    // Esri tiles fail and OSM cannot activate. The controller does not
+    // recover onto Google 3D, so the comparison keeps the Esri lease.
     failEsriTiles();
     await watch();
     assert.deepEqual(calls, ['esri-imagery', 'osm'], 'no Esri retry');
-    assert.equal(controller.getActiveId(), 'photoreal');
-    assert.equal(controller.getSwitchOrigin(), 'automatic');
-    assert.equal(f.diag().lease, false);
-    assert.equal(f.diag().host, 'tileset');
-    assert.equal(f.snap().shown.swipe, 'ab');
-    assert.equal(f.snap().comparison.active, false);
-    assert.deepEqual(f.drapes(), { a: `${S18}|none`, b: `${L16}|none` });
-    assert.equal(f.owned().a.kind, 'tileset');
-    assert.equal(f.snap().error, 'Esri map unavailable · no swipe');
-    assert.notEqual(
-      f.snap().notice,
-      'Imagery stays on Esri · CLEAR to use Google 3D',
-    );
+    assert.equal(controller.getActiveId(), 'esri-imagery');
+    assert.notEqual(controller.getActiveId(), 'photoreal');
+    assert.equal(f.diag().lease, true);
+    assert.equal(f.diag().host, 'globe');
+    assert.equal(f.snap().comparison.active, true);
+    assert.notEqual(f.snap().error, 'Esri map unavailable · no swipe');
     // More polls, renders and dead Esri listeners never retry.
     failEsriTiles();
     f.layer.setAlpha(0.5);

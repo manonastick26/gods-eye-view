@@ -28,7 +28,9 @@ export function createDefaultMapSources({
   return {
     defaultId: googleTileset ? 'photoreal' : 'esri-imagery',
     unknownId: 'photoreal',
-    recoveryId: googleTileset ? 'photoreal' : null,
+    // A failed free basemap recovers through that stack's own OSM fallback.
+    // It does not switch onto Google 3D, which is metered.
+    recoveryId: null,
     state: { hasCesiumIonToken: hasIon },
     sources: MAP_STACKS.map((descriptor) => {
       const common = {

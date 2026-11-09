@@ -102,7 +102,10 @@ test('en: road-source chips keep their English labels and titles', () => {
         'TomTom',
         'TomTom roads only, each with its live flow (needs a TomTom key)',
       ],
-      ['OSM', 'OpenStreetMap roads, with TomTom flow matched when available'],
+      [
+        'OSM',
+        'OpenStreetMap roads with simulated traffic. Choose TomTom or Hybrid for live flow.',
+      ],
       [
         'Hybrid',
         'TomTom roads first; OpenStreetMap fills the rest, simulated (needs a TomTom key)',

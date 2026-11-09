@@ -10,6 +10,8 @@ Photorealistic 3D globe. Live aircraft, ships, satellites, earthquakes, traffic,
 
 _No place left behind._
 
+> **Custom edition.** This fork continues [Bilawal Sidhu's God's Eye View](https://github.com/bilawalsidhu/gods-eye-view) for local use. The original MIT copyright and license are unchanged. This is not the original project and is not affiliated with or endorsed by its creator. Startup and the keyless defaults are in [docs/CUSTOM-EDITION.md](docs/CUSTOM-EDITION.md).
+
 ![Orbital HUD, a tracked live globe, FLIR terrain — then OPEN SOURCED](docs/media/hero-open-source-reveal.gif)
 
 <a href="https://www.youtube.com/@bilawalsidhu">

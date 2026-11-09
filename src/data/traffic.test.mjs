@@ -102,6 +102,7 @@ test('no keyless label ever implies a live feed', () => {
       fetching: true,
       flowError: 'TomTom flow unavailable',
     }),
+    trafficFeedPresentation({ liveMode: false, keyPresent: true }),
   ].map((feed) => feed.loadingLabel);
   for (const label of labels) {
     assert.ok(!LIVE_CLAIM.test(label), `label implies live data: ${label}`);
@@ -110,6 +111,16 @@ test('no keyless label ever implies a live feed', () => {
       `fallback label must lead with the mode: ${label}`,
     );
   }
+});
+
+test('a configured TomTom key stays simulated until TomTom or Hybrid is chosen', () => {
+  const held = trafficFeedPresentation({ liveMode: false, keyPresent: true });
+  assert.equal(held.mode, 'sim');
+  assert.equal(held.error, null);
+  assert.equal(
+    held.loadingLabel,
+    'SIMULATED — choose TomTom or Hybrid for live flow',
+  );
 });
 
 test('simulating because the status probe failed reads differently from keyless by design', () => {

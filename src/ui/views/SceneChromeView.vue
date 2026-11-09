@@ -75,6 +75,7 @@ const vToastText = {
     <h1><span class="title-logo brand-logo" data-logo-gaze data-logo-src="/logo.svg" aria-hidden="true"><img src="/logo.svg" alt="" /></span> <span translate="no">GOD'S EYE <span class="title-accent">VIEW</span></span></h1>
     <p class="subtitle scene-text-holdout">{{ t('NO PLACE LEFT BEHIND') }}</p>
     <div v-if="fps" class="frame-rate-readout scene-text-holdout" :hidden="!fps.visible" :title="t('Rendered globe frames per second · toggle with `')">{{ fps.text }}</div>
+    <p class="edition-note">{{ t('Custom edition. Original by Bilawal Sidhu, MIT license.') }}</p>
   </div>
 
   <!-- Style indicator -->

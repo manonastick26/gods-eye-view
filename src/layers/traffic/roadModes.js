@@ -86,10 +86,12 @@ export function normalizeRoadMode(value, modes = TRAFFIC_ROAD_MODES) {
 
 /**
  * Resolve the mode actually drawn. Without a TomTom key every choice draws
- * OpenStreetMap roads when the host offers them; with one, an explicit
- * choice wins over Hybrid. A host that offers no OpenStreetMap mode keeps
- * its TomTom choice keyless (nothing is drawn; the status names the reason),
- * and a host without Hybrid defaults to its first offered mode.
+ * OpenStreetMap roads when the host offers them. An unset choice also stays
+ * on OpenStreetMap when that mode exists, even if a key is configured, so
+ * live TomTom tiles are not requested until TomTom or Hybrid is selected.
+ * An explicit choice wins. A host that offers no OpenStreetMap mode keeps
+ * its TomTom choice (nothing is drawn keyless; the status names the reason),
+ * and a host without Hybrid or OpenStreetMap defaults to its first mode.
  * @param {*} value - Requested mode (null for the default).
  * @param {boolean} hasKey - The server reported a TomTom key.
  * @param {ReadonlyArray<string>} [modes] - The host's offered modes.
@@ -98,7 +100,9 @@ export function normalizeRoadMode(value, modes = TRAFFIC_ROAD_MODES) {
 export function resolveRoadMode(value, hasKey, modes = TRAFFIC_ROAD_MODES) {
   const chosen = normalizeRoadMode(value, modes);
   if (!hasKey && roadModesSimulate(modes)) return 'osm';
-  return chosen || (modes.includes('hybrid') ? 'hybrid' : modes[0]);
+  if (chosen) return chosen;
+  if (roadModesSimulate(modes)) return 'osm';
+  return modes.includes('hybrid') ? 'hybrid' : modes[0];
 }
 
 const FLOW_ROAD_TYPES = Object.freeze({

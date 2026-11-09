@@ -16,6 +16,17 @@ import {
 import { mountApplicationViews } from '../ui/views/index.js';
 import { createGoogleTokenSource } from '../maps/googleTokens.js';
 
+const METERED_STORAGE_KEY = 'gev-metered-providers';
+
+/** Same opt-in as the globe startup. Default is keyless place search. */
+function meteredProvidersEnabled() {
+  try {
+    return globalThis.localStorage?.getItem(METERED_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 // The existing controls and layer catalog contain page-scoped state.
 let constructed = false;
 
@@ -62,6 +73,8 @@ export function createStandaloneApplication({
         // so it stays free of application state.
         presets: CITY_POIS,
         ...geospatial,
+        // After the spread so a caller cannot quietly turn paid search back on.
+        allowMetered: meteredProvidersEnabled(),
         resolveApiKey: () => googleApiKey,
         signal: context.signal,
       });

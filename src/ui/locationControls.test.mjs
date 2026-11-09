@@ -109,6 +109,7 @@ test('the tray presents its cities, empty status and no landmarks at first', () 
     searchExpanded: false,
     searching: false,
     orbit: null,
+    favorites: [],
   });
   f.controls.highlightCity('b');
   assert.deepEqual(

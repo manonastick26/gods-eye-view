@@ -2,6 +2,11 @@ import * as Cesium from 'cesium';
 import { t } from '../i18n/index.js';
 import { createStateChannel } from '../app/stateChannel.js';
 import { LocationControls } from './location.js';
+import {
+  addFavorite,
+  readFavorites,
+  removeFavorite,
+} from './favoriteLocations.js';
 
 /** Own destination selection, lookup, orbit and world-jump lifetime. */
 export class LocationNavigation {
@@ -150,6 +155,10 @@ export class LocationNavigation {
       onSearch: (query) => this._locationLookup.run(query),
       onSearchEdit: () => this._setLocationSearchError(null),
       onReset: () => this.resetToGlobeView(),
+      onSaveFavorite: () => this.saveFavorite(),
+      onChooseFavorite: (id) => this.chooseFavorite(id),
+      onRemoveFavorite: (id) => this.removeFavorite(id),
+      favorites: readFavorites(this._favoriteStorage()),
       searchExpanded,
     });
     // The new lookup's reset settles a replaced lookup's search through the
@@ -261,6 +270,74 @@ export class LocationNavigation {
 
   _updatePoiHighlight() {
     this._locationControls.highlightPoi(this._activePoiIndex);
+  }
+
+  _favoriteStorage() {
+    try {
+      return globalThis.localStorage || null;
+    } catch {
+      return null;
+    }
+  }
+
+  _refreshFavorites() {
+    this._locationControls?.setFavorites(
+      readFavorites(this._favoriteStorage()),
+    );
+  }
+
+  /** Name the framed place, or the camera coordinates when nothing is named. */
+  _favoriteName(lat, lon) {
+    const city = this._activeLocationId
+      ? this.services.CITY_POIS?.[this._activeLocationId]?.name
+      : '';
+    const named = [this._searchedLocationLabel, this._currentPoi?.name, city]
+      .map((part) => String(part || '').trim())
+      .find((part) => part && part !== '·');
+    return named || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+  }
+
+  /** Remember where the camera is. The list stays in localStorage. */
+  saveFavorite() {
+    const carto = this.viewer?.camera?.positionCartographic;
+    if (!carto) return;
+    const lat = Cesium.Math.toDegrees(carto.latitude);
+    const lon = Cesium.Math.toDegrees(carto.longitude);
+    addFavorite(this._favoriteStorage(), {
+      name: this._favoriteName(lat, lon),
+      lat,
+      lon,
+    });
+    this._refreshFavorites();
+  }
+
+  /** Fly to a saved place. Missing ids and a missing flier do nothing. */
+  chooseFavorite(id) {
+    const place = readFavorites(this._favoriteStorage()).find(
+      (item) => item.id === id,
+    );
+    const fly = this.services.flyToLandmark;
+    if (!place || typeof fly !== 'function') return;
+    const result = this._flyWithTransition(false, (hooks) =>
+      fly(this.viewer, place.lat, place.lon, {
+        range: 2500,
+        pitch: -35,
+        heading: 0,
+        buildingHeight: 0,
+        ...hooks,
+      }),
+    );
+    if (result === false) return;
+    this._searchedLocationLabel = place.name;
+    this._setActiveLocation(null);
+    this._currentPoi = null;
+    this._collapsePOIRow();
+    this._updateLocationMiniStatus();
+  }
+
+  removeFavorite(id) {
+    removeFavorite(this._favoriteStorage(), id);
+    this._refreshFavorites();
   }
 
   clearSearchedLocation() {

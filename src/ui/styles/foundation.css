@@ -624,6 +624,17 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   text-transform: uppercase;
 }
 
+.edition-note {
+  margin: 6px 0 0;
+  max-width: 28rem;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+}
+
 #title-bar .frame-rate-readout {
   margin-top: 6px;
   font-family: var(--font-mono);

@@ -33,6 +33,10 @@ export class LocationControls {
     onSearch,
     onSearchEdit,
     onReset,
+    onSaveFavorite,
+    onChooseFavorite,
+    onRemoveFavorite,
+    favorites = [],
     searchExpanded = false,
     publish = () => {},
     doc = document,
@@ -47,6 +51,9 @@ export class LocationControls {
       onPoi,
       onSearch,
       onReset,
+      onSaveFavorite,
+      onChooseFavorite,
+      onRemoveFavorite,
       publish,
       doc,
       requestFrame,
@@ -77,6 +84,7 @@ export class LocationControls {
     // The search field: whether it is open, and whether a lookup runs.
     this.searchExpanded = Boolean(searchExpanded);
     this.searching = false;
+    this.favorites = Array.isArray(favorites) ? favorites : [];
     // The ORBIT indicator: null until the shell offers it, then whether the
     // camera orbits.
     this.orbit = null;
@@ -136,6 +144,7 @@ export class LocationControls {
       searchExpanded: this.searchExpanded,
       searching: this.searching,
       orbit: this.orbit && { ...this.orbit },
+      favorites: this.favorites.map((place) => ({ ...place })),
     };
   }
   /** A city pill was clicked. */
@@ -145,6 +154,24 @@ export class LocationControls {
   /** A reset to the full globe view was asked for. */
   reset() {
     if (!this.destroyed) return this.onReset();
+  }
+  /** Replace the saved-place row after a local write. */
+  setFavorites(places) {
+    if (this.destroyed) return;
+    this.favorites = Array.isArray(places) ? places : [];
+    this.present();
+  }
+  /** Save the current view into the local place list. */
+  saveFavorite() {
+    if (!this.destroyed) this.onSaveFavorite?.();
+  }
+  /** Fly to a saved place. */
+  chooseFavorite(id) {
+    if (!this.destroyed) this.onChooseFavorite?.(id);
+  }
+  /** Drop a saved place. */
+  removeFavorite(id) {
+    if (!this.destroyed) this.onRemoveFavorite?.(id);
   }
   /** A landmark pill of the shown city was clicked. */
   choosePoi(index) {

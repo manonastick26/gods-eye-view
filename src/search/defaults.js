@@ -11,8 +11,10 @@ import { createAlpsGeocoder } from './alpsGeocoder.js';
 
 /**
  * Coordinates, bundled names and the unqualified Alps first — all offline —
- * then Google when configured, then keyless Photon, then the local Nominatim
- * route as a last resort. Transport stays local to setup.
+ * then Google when `allowMetered` is true and a key is configured, then
+ * keyless Photon, then the local Nominatim route as a last resort.
+ * `allowMetered: false` skips Google geocoding, reverse geocoding, text
+ * search and nearby places. Transport stays local to setup.
  *
  * `presets` is the caller's bundled place data. It is passed in rather than
  * imported so this package keeps reading no application state; with none
@@ -26,6 +28,7 @@ export function createDefaultPlaceSearch({
   providers = {},
   presets = null,
   geocoding = null,
+  allowMetered = true,
 } = {}) {
   if (geocoding && geocoding.provider !== 'nominatim')
     throw new TypeError('Unsupported geocoding provider');
@@ -54,17 +57,21 @@ export function createDefaultPlaceSearch({
             // has no Google: the proxy's "not configured" reads as an
             // unanswered provider, which stops the chain caching the negative
             // Photon or Nominatim then produces.
-            createGoogleGeocoder({
-              request(query, { bias, signal }) {
-                if (!resolveApiKey?.()) return null;
-                const params = new URLSearchParams({ address: query });
-                if (bias) params.set('bounds', bias);
-                return fetchImpl(
-                  `${endpoints.geocode || '/api/google/geocode'}?${params}`,
-                  { signal },
-                );
-              },
-            }),
+            ...(allowMetered
+              ? [
+                  createGoogleGeocoder({
+                    request(query, { bias, signal }) {
+                      if (!resolveApiKey?.()) return null;
+                      const params = new URLSearchParams({ address: query });
+                      if (bias) params.set('bounds', bias);
+                      return fetchImpl(
+                        `${endpoints.geocode || '/api/google/geocode'}?${params}`,
+                        { signal },
+                      );
+                    },
+                  }),
+                ]
+              : []),
             // `endpoints.photon === null` is the operator's "no Photon".
             ...(endpoints.photon === null
               ? []
@@ -103,6 +110,7 @@ export function createDefaultPlaceSearch({
     fetchImpl,
     resolveApiKey,
     endpoints,
+    allowMetered,
   });
   return {
     ...forward,

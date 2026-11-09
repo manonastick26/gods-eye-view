@@ -19,6 +19,17 @@ import { worldClock, worldTimeFor } from '../time/worldClock.js';
 import { followWorldTime } from '../time/viewerClock.js';
 import { onLocaleChange, t } from '../i18n/index.js';
 
+const METERED_STORAGE_KEY = 'gev-metered-providers';
+
+/** Paid map startup is opt-in. The default globe does not load Google or ion. */
+function meteredMapsEnabled() {
+  try {
+    return globalThis.localStorage?.getItem(METERED_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 /** Construct the application globe using the caller's local configuration. */
 export async function createApplicationScene({
   requestServices,
@@ -37,8 +48,10 @@ export async function createApplicationScene({
     signal,
   });
   defer(initLogoGaze());
+  const useMeteredMaps = meteredMapsEnabled();
   const previousKey = window.__GOOGLE_MAPS_API_KEY__;
-  if (googleApiKey) {
+  // The browser key unlocks metered Google calls. Leave it unset until opted in.
+  if (useMeteredMaps && googleApiKey) {
     window.__GOOGLE_MAPS_API_KEY__ = googleApiKey;
     defer(() => {
       if (window.__GOOGLE_MAPS_API_KEY__ !== googleApiKey) return;
@@ -72,14 +85,16 @@ export async function createApplicationScene({
   configureCreditKeyboardAccess(document);
   defer(onLocaleChange(() => configureCreditKeyboardAccess(document)));
   loaderStatus.textContent =
-    googleApiKey || googleTokens || cesiumToken
+    useMeteredMaps && (googleApiKey || googleTokens || cesiumToken)
       ? t('Loading Google 3D Tiles...')
       : t('Loading the keyless globe...');
-  const photoreal = await loadPhotorealisticTileset(Cesium, {
-    googleApiKey,
-    googleTokens,
-    cesiumToken,
-  });
+  const photoreal = useMeteredMaps
+    ? await loadPhotorealisticTileset(Cesium, {
+        googleApiKey,
+        googleTokens,
+        cesiumToken,
+      })
+    : { tileset: null, route: 'osm', errors: [] };
   const tileset = photoreal.tileset;
   // A provider can finish after cancellation; retain ownership of its result.
   defer(() => {
@@ -118,7 +133,7 @@ export async function createApplicationScene({
     requestRender: governorRequestRender,
     ...mapOptions,
     googleTileset: tileset,
-    cesiumToken,
+    cesiumToken: useMeteredMaps ? cesiumToken : '',
     initialStack: tileset ? 'photoreal' : 'esri-imagery',
     // Task 5 (height-datum fix): rebroadcast stack changes as a window
     // CustomEvent so data layers (CCTV per-regime ground resolution) can
