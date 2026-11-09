@@ -1,0 +1,81 @@
+:root {
+  color-scheme: light;
+  font-family: Georgia, "Iowan Old Style", Palatino, serif;
+  --ink: #1c1915;
+  --paper: #f6f1e7;
+  --line: #c8b79a;
+  --accent: #8c4a2f;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+#globe { position: fixed; inset: 0; }
+#top, #panel, dialog {
+  position: relative;
+  z-index: 2;
+  background: color-mix(in srgb, var(--paper) 92%, white);
+  color: var(--ink);
+}
+#top {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  max-width: 28rem;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+h1, h2 { font-weight: 600; margin: 0 0 0.3rem; }
+h1 { font-size: 1.4rem; }
+.kicker, .lede, .fine { margin: 0.2rem 0; }
+.kicker { font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.lede, .fine { font-size: 0.92rem; line-height: 1.35; }
+#panel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: min(24rem, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+label { display: block; font-size: 0.85rem; margin: 0.4rem 0; }
+input, select, button {
+  font: inherit;
+  color: inherit;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.35rem 0.5rem;
+}
+input, select { width: 100%; }
+button { cursor: pointer; margin: 0.25rem 0.25rem 0.25rem 0; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+#site-list, #align-list, #lidar-list { list-style: none; padding: 0; margin: 0.4rem 0; }
+#site-list button, #align-list button { width: 100%; text-align: left; }
+#site-list button[aria-current="true"] { border-color: var(--accent); }
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  max-width: 28rem;
+  padding: 1rem;
+}
+dialog::backdrop { background: rgba(20, 16, 12, 0.45); }
+a { color: var(--accent); }
+#credits {
+  position: fixed;
+  left: 12px;
+  bottom: 8px;
+  z-index: 2;
+  max-width: 36rem;
+  font-size: 11px;
+  color: white;
+  text-shadow: 0 1px 2px #1c1915;
+}
+#canyon h3, #discoveries h3 { font-size: 0.95rem; margin: 0.7rem 0 0.2rem; }
+#canyon p, #discoveries p { margin: 0.2rem 0; font-size: 0.9rem; line-height: 1.35; }
+#canyon a, #discoveries a { display: inline-block; margin: 0.15rem 0.6rem 0.15rem 0; }

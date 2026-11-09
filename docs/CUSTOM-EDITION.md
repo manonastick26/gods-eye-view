@@ -4,6 +4,8 @@ This is a public fork of [Bilawal Sidhu's God's Eye View](https://github.com/bil
 
 This edition is not the original project. It is not affiliated with or endorsed by Bilawal Sidhu. The title still names the work being customized.
 
+A second screen, Ancient structures, lives in `editions/ancient` and is started with `npm run ancient:dev` on `http://127.0.0.1:4174`. It does not replace this globe or its port. Startup for that screen is in `editions/ancient/START.md`.
+
 ## What this pass changes
 
 - The globe starts on keyless Esri imagery, with OSM if Esri cannot be reached. Google 3D Tiles and Cesium ion terrain are not loaded, and a failed free basemap does not switch to Google.

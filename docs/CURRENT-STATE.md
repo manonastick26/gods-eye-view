@@ -1,5 +1,8 @@
 # God's Eye View Current State
 
+This fork also keeps a separate ancient-structures screen in `editions/ancient`
+on port 4174. It does not replace the keyless globe. See `editions/ancient/START.md`.
+
 Docker Compose mounts the checkout with the shared SELinux `:z` label so
 containers can read it on enforcing SELinux hosts. The separate image-owned
 `node_modules` volume and loopback-only port publishing remain unchanged.

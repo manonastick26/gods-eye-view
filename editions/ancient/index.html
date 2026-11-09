@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ancient structures — a custom globe</title>
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <div id="globe"></div>
+  <header id="top">
+    <p class="kicker">Custom edition · not the original God’s Eye View</p>
+    <h1>Ancient structures</h1>
+    <p class="lede">Markers are approximate published centers. Lines are paths you draw, not a proven energy grid.</p>
+  </header>
+  <aside id="panel" aria-label="Sites and proposed alignments">
+    <label class="search">Search
+      <input id="search" type="search" autocomplete="off" placeholder="Name, country, culture" />
+    </label>
+    <label>Region
+      <select id="region">
+        <option value="all">All regions</option>
+        <option value="south-america">South America</option>
+        <option value="mesoamerica">Mesoamerica</option>
+        <option value="europe">Europe</option>
+        <option value="africa">Africa</option>
+        <option value="asia">Asia</option>
+        <option value="oceania">Oceania</option>
+      </select>
+    </label>
+    <ul id="site-list"></ul>
+    <section id="detail" hidden>
+      <h2 id="detail-name"></h2>
+      <p id="detail-body"></p>
+      <p><a id="detail-source" href="" target="_blank" rel="noopener noreferrer">Heritage record</a></p>
+      <p id="detail-model"></p>
+      <p id="detail-lidar"></p>
+      <button type="button" id="favorite">Save favorite</button>
+      <button type="button" id="align-start">Use as alignment start</button>
+    </section>
+    <section>
+      <h2>Proposed alignments</h2>
+      <p id="align-status">Choose a start, then another marker. Nothing is drawn until you do.</p>
+      <ul id="align-list"></ul>
+      <button type="button" id="align-clear">Clear alignments</button>
+      <button type="button" id="export">Export saved JSON</button>
+    </section>
+    <section>
+      <h2>Recent discoveries</h2>
+      <p id="discoveries-summary"></p>
+      <div id="discoveries"></div>
+    </section>
+    <section>
+      <h2>Grand Canyon</h2>
+      <div id="canyon"></div>
+    </section>
+    <section>
+      <h2>South America LiDAR</h2>
+      <p id="lidar-summary"></p>
+      <ul id="lidar-list"></ul>
+    </section>
+    <p class="fine">Code of the original project is MIT, © Bilawal Sidhu. This screen is a separate edition. Esri imagery is proprietary hosted data and is not a scan. The ellipsoid is not LiDAR.</p>
+  </aside>
+  <dialog id="intro">
+    <h2>Before you draw a line</h2>
+    <p>A proposed alignment is a great-circle path you choose between two markers. It is a hypothesis on the map, not proof of a physical energy channel and not proof of what ancient builders intended.</p>
+    <button type="button" id="intro-dismiss">Explore the globe</button>
+  </dialog>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
